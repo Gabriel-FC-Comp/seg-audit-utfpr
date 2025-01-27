@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivo</title>
+    <link rel="stylesheet" href={{ url_for('static', filename='styles.css') }}>
+    <script src={{ url_for('static', filename='socket.io.min.js') }}></script>
+    <script src={{ url_for('static', filename='diffie_hellman.js') }}></script>
+    <script src={{ url_for('static', filename='crypto-js/crypto-js.js') }}></script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Upload de Arquivo</h1>
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">Escolher Arquivo</label>
+            <input id="file" type="file" name="file" required />
+            <br/>
+            <button type="submit">Enviar</button>
+        </form>
+        <p>Arquivos enviados serão processados no servidor.</p>
+        
+        <form id="downloadForm" onsubmit="startDownload(event)">
+            <label for="filename">Nome do Arquivo:</label>
+            <input id="filename" type="text" name="filename" placeholder="Digite o nome do arquivo" required />
+            <br />
+            <button type="submit">Baixar Arquivo</button>
+        </form>
+    </div>
+    <script>
+        function startDownload(event) {
+            event.preventDefault();
+            const filename = document.getElementById('filename').value;
+            
+            if (filename) {
+                // Redireciona para a rota de download no servidor
+                window.location.href = `/uploads/${filename}`;
+            } else {
+                alert('Por favor, insira o nome do arquivo.');
+            }
+        }
+    </script>
+    <script type='module' src={{ url_for('static', filename='cipher_data.js') }}></script>
+</body>
+</html>
