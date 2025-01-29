@@ -55,7 +55,7 @@ Diffie_Hellman_Secret = None
 hasher = hashlib.new('sha512')
 
 # Configurando a decriptação dos dados
-def decryptText(ciphertext, key):
+def decrypt_text(ciphertext, key):
     raw_data = base64.b64decode(ciphertext)
     iv = raw_data[:16]  # Os primeiros 16 bytes são o IV
     encrypted_bytes = raw_data[16:]  # O restante é o texto criptografado
@@ -68,6 +68,29 @@ def decryptText(ciphertext, key):
     decrypted = decrypted[:-pad_len]  # Removendo o padding
 
     return decrypted.decode('utf-8')
+
+# Função para descriptografar
+def decrypt_file(encrypted_data,key):
+    # Decodifica o Base64
+    encrypted_data = base64.b64decode(encrypted_data)
+
+    # Extrai o IV (primeiros 16 bytes)
+    iv = encrypted_data[:16]
+
+    # Extrai os dados criptografados (restante dos bytes)
+    ciphertext = encrypted_data[16:]
+
+    # Cria o objeto AES para descriptografia
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    # Descriptografa os dados
+    decrypted_data = cipher.decrypt(ciphertext)
+
+    # Remove o padding (preenchimento PKCS7)
+    pad_len = decrypted_data[-1]  # O último byte indica o número de bytes de padding
+    decrypted_data = decrypted_data[:-pad_len]  # Removendo o padding
+
+    return decrypted_data
 
 # Inicializando o Flask com WebSocket
 app = Flask(__name__)
@@ -108,7 +131,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload', methods=['POST'])
 def upload_file_and_calculate_hash():
-
     """Recebe um arquivo do cliente, salva no servidor e calcula seu hash SHA-512."""
     if 'file' not in request.files:
         return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
@@ -133,11 +155,22 @@ def upload_file_and_calculate_hash():
         return jsonify({"error": f"Erro ao calcular o hash: {str(e)}"}), 500
 
     file_hash = sha512_hash.hexdigest()
-    received_file_hash = decryptText(request.form.get('test'), Diffie_Hellman_Secret)
+
+    received_file_hash = decrypt_text(request.form.get('e_hash'), Diffie_Hellman_Secret)
     print("FH:  ", file_hash)
     print("RFH: ", received_file_hash)
     if(file_hash == received_file_hash):
         print("Arquivo sem corrupção!")
+
+    if "e_file" not in request.files:
+        return jsonify({"error": "Nenhum arquivo enviado"}), 400
+
+    # Recebe o arquivo criptografado
+    encrypted_file = request.files["e_file"].read()
+
+    with open(f"{file.filename}","wb") as received_file:
+        print("Creating File: ", f"|{file.filename}|")
+        received_file.write(decrypt_file(encrypted_file,Diffie_Hellman_Secret))
 
     # Retorna o hash calculado junto com a mensagem de sucesso
     return jsonify({
