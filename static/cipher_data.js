@@ -18,6 +18,20 @@ function getHash(file) {
     reader.readAsArrayBuffer(file);
 }
 
+function encrypt(text, key) {
+    const iv = CryptoJS.lib.WordArray.random(16); // IV aleatório de 16 bytes
+
+    const encrypted = CryptoJS.AES.encrypt(text, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+    });
+
+    // Concatenamos IV + Texto Criptografado e codificamos em Base64
+    const result = CryptoJS.enc.Base64.stringify(iv.concat(encrypted.ciphertext));
+    return result;
+}
+
 // Evento para capturar o arquivo antes de enviar
 form.addEventListener("submit", function(event) {
     event.preventDefault(); // Previne o envio do formulário para poder processá-lo via JavaScript
@@ -26,6 +40,13 @@ form.addEventListener("submit", function(event) {
 
     const file_hash = getHash(file);
 
+    const message = "Olá Mundo";
+
+    const crypted_message = encrypt(message,Secret_Key);
+    console.log("Decript");
+    console.log(message);
+    console.log(crypted_message);
+
     // Verifique se um arquivo foi selecionado
     if (file) {
         console.log("Arquivo selecionado:", file.name);
@@ -33,7 +54,7 @@ form.addEventListener("submit", function(event) {
         // Caso queira enviar o arquivo via AJAX, use FormData
         const formData = new FormData();
         formData.append("file", file);
-        // formData.append("test", "test")
+        formData.append("test", crypted_message);
 
         // Agora você pode enviar o arquivo para o Flask via fetch (ou Ajax)
         fetch('/upload', {

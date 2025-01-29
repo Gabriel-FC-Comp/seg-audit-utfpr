@@ -49,8 +49,9 @@ socket.on('server_kpu', (data) => {
 
     // Funções de cálculo
     Kpu_client = calc_kpu_diff_helman(data.p, data.g, Kpr_client);
-    Secret_Key = calc_secret_diff_helman(p=data.p, kpr_client=Kpr_client, kpu_serv=data.kpu_serv);
-
+    Secret_Key = String(calc_secret_diff_helman(p=data.p, kpr_client=Kpr_client, kpu_serv=data.kpu_serv));
+    Secret_Key = CryptoJS.SHA256(Secret_Key);
+    
     // Logs para debug
     console.log('Kpu_client:', Kpu_client);
     console.log('Secret_Key:', Secret_Key);

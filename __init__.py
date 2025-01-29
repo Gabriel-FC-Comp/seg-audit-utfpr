@@ -2,8 +2,10 @@
 from flask import Flask, render_template,send_file,request, jsonify  # Para criar o aplicativo Flask e renderizar modelos HTML
 from flask_socketio import SocketIO, emit  # Para suporte a WebSocket
 from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 import os
 import hashlib
+import base64
 import json
 
 def calc_kpu_diff_helman(p: int, g: int, Kpr: int) -> int:
@@ -53,15 +55,19 @@ Diffie_Hellman_Secret = None
 hasher = hashlib.new('sha512')
 
 # Configurando a decriptação dos dados
-def decript_data(received_cipherdata,received_nonce,received_tag):
-    cipher = AES.new(Diffie_Hellman_Secret, AES.MODE_EAX, nonce=received_nonce)
-    plaintext = cipher.decrypt(received_cipherdata)
-    try:
-        cipher.verify(received_tag)
-        print("Mensagem autêntica:", plaintext)
-    except ValueError:
-        print("A mensagem foi corrompida ou a chave está errada")
+def decrypt(ciphertext, key):
+    raw_data = base64.b64decode(ciphertext)
+    iv = raw_data[:16]  # Os primeiros 16 bytes são o IV
+    encrypted_bytes = raw_data[16:]  # O restante é o texto criptografado
 
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # A chave deve ter 32 bytes (SHA-256 já garante isso)
+    decrypted = cipher.decrypt(encrypted_bytes)
+
+    # Remover padding PKCS7 corretamente
+    pad_len = decrypted[-1]  # O último byte indica o número de bytes de padding
+    decrypted = decrypted[:-pad_len]  # Removendo o padding
+
+    return decrypted.decode('utf-8')
 
 # Inicializando o Flask com WebSocket
 app = Flask(__name__)
@@ -89,8 +95,10 @@ def handle_exchange_kpu():
 def calc_secret(data):
     global Diffie_Hellman_Secret
     Diffie_Hellman_Secret = calc_secret_diff_helman(p=diffie_hellman_p, Kpr_a=Kpr_serv, Kpu_b=data['client_kpu'])
+    print("Encoded: ", Diffie_Hellman_Secret)
+    Diffie_Hellman_Secret = hashlib.sha256(f"{Diffie_Hellman_Secret}".encode('utf-8')).digest()
     print(f"ServKPU = {Kpu_serv}")
-    print(f"Secret: {Diffie_Hellman_Secret}")
+    print(f"Secret: {Diffie_Hellman_Secret.hex()}")
     
 # Diretório para salvar os arquivos enviados
 UPLOAD_FOLDER = 'uploads'
@@ -100,7 +108,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload', methods=['POST'])
 def upload_file_and_calculate_hash():
-    # print(request.form.get('test'))
+    print("Decript: ", decrypt(request.form.get('test'), Diffie_Hellman_Secret))
+
     """Recebe um arquivo do cliente, salva no servidor e calcula seu hash SHA-512."""
     if 'file' not in request.files:
         return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
