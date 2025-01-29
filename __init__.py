@@ -55,7 +55,7 @@ Diffie_Hellman_Secret = None
 hasher = hashlib.new('sha512')
 
 # Configurando a decriptação dos dados
-def decrypt(ciphertext, key):
+def decryptText(ciphertext, key):
     raw_data = base64.b64decode(ciphertext)
     iv = raw_data[:16]  # Os primeiros 16 bytes são o IV
     encrypted_bytes = raw_data[16:]  # O restante é o texto criptografado
@@ -108,7 +108,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload', methods=['POST'])
 def upload_file_and_calculate_hash():
-    print("Decript: ", decrypt(request.form.get('test'), Diffie_Hellman_Secret))
 
     """Recebe um arquivo do cliente, salva no servidor e calcula seu hash SHA-512."""
     if 'file' not in request.files:
@@ -133,11 +132,18 @@ def upload_file_and_calculate_hash():
     except Exception as e:
         return jsonify({"error": f"Erro ao calcular o hash: {str(e)}"}), 500
 
+    file_hash = sha512_hash.hexdigest()
+    received_file_hash = decryptText(request.form.get('test'), Diffie_Hellman_Secret)
+    print("FH:  ", file_hash)
+    print("RFH: ", received_file_hash)
+    if(file_hash == received_file_hash):
+        print("Arquivo sem corrupção!")
+
     # Retorna o hash calculado junto com a mensagem de sucesso
     return jsonify({
         "message": f"Arquivo {file.filename} recebido e salvo com sucesso!",
         "filename": file.filename,
-        "sha512": sha512_hash.hexdigest()
+        "sha512": file_hash
     })
 
 @app.route('/download/<filename>', methods=['GET'])
