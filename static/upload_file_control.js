@@ -1,14 +1,14 @@
 // Acessando o formulário e o input de arquivo
 const form = document.getElementById("uploadForm");
 const fileInput = document.getElementById("file");
-
+const fileInputName = document.getElementById('fileName');
 // Controla a exibição do nome do arquivo selecionado para o usuário
 fileInput.addEventListener('change', function(event) {
     const file = event.target.files[0]; // Obtém o arquivo selecionado
     if (file) {
-        document.getElementById('fileName').textContent = `Arquivo selecionado: ${file.name}`;
+        fileInputName.textContent = `Arquivo selecionado: ${file.name}`;
     } else {
-        document.getElementById('fileName').textContent = '';
+        fileInputName.textContent = 'Arquivo selecionado:';
     }
 });
 
@@ -37,12 +37,18 @@ async function sendCryptedFile(file) {
             .then(response => response.json())
             .then(data => {
                 console.log('Arquivo enviado com sucesso!', data);
+                alert('Arquivo enviado com sucesso!', data);
+                // Limpa o input de arquivo
+                fileInput.value = "";
+                fileInputName.textContent = 'Arquivo selecionado:';
             })
             .catch(error => {
                 console.error('Erro ao enviar arquivo:', error);
+                alert('Erro ao enviar arquivo:', error);
             });
     } catch (error) {
         console.error("Erro ao calcular o hash: ", error);
+        alert("Erro ao calcular o hash: ", error);
         throw error;
     }
 }
