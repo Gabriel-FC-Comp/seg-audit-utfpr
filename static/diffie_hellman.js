@@ -36,7 +36,7 @@ function calc_secret_diff_helman(p, kpr_client, kpu_serv) {
 }
 
 // Conectando ao servidor
-const socket = io('http://127.0.0.1:8001');
+const socket = io('http://10.0.2.5:8001');
 
 const Kpr_client = 31;
 var Kpu_client = null;
