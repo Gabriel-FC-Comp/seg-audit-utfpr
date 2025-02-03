@@ -77,38 +77,3 @@ function encryptFile(file, key) {
         reader.readAsArrayBuffer(file);
     });
 }
-
-// Função para encriptar e enviar um arquivo e seu hash par o servidor
-async function sendCryptedFile(file) {
-    try {
-        // Espera o hash ser calculado
-        const file_hash = await calcFileHash(file); 
-
-        // Espera criptografar o arquivo
-        const encryptedFile = await encryptFile(file, Secret_Key); 
-        const encrypted_hash = encryptText(file_hash, Secret_Key);
-
-        // Formatando os dados para envio AJAX
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("hash", file_hash);
-        formData.append("e_hash", encrypted_hash);
-        formData.append("e_file", encryptedFile);
-    
-        // Enviando o arquivo e hash para o servidor Flask
-        fetch('/upload', {
-            method: 'POST',
-            body: formData,
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Arquivo enviado com sucesso!', data);
-            })
-            .catch(error => {
-                console.error('Erro ao enviar arquivo:', error);
-            });
-    } catch (error) {
-        console.error("Erro ao calcular o hash: ", error);
-        throw error;
-    }
-}
