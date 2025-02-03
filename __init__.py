@@ -196,4 +196,4 @@ def download_file(filename):
 # Verifica se o arquivo foi executado diretamente
 if __name__ == "__main__":
     # Inicia o servidor Flask com suporte a WebSocket
-    socketio.run(app, debug=True, port=8001)
+    socketio.run(app, debug=True, port=8001, host='0.0.0.0')

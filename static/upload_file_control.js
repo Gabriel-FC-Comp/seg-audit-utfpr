@@ -2,6 +2,7 @@
 const form = document.getElementById("uploadForm");
 const fileInput = document.getElementById("file");
 const fileInputName = document.getElementById('fileName');
+
 // Controla a exibição do nome do arquivo selecionado para o usuário
 fileInput.addEventListener('change', function(event) {
     const file = event.target.files[0]; // Obtém o arquivo selecionado
