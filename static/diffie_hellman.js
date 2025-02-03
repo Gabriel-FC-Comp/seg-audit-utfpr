@@ -38,3 +38,31 @@ function calc_secret_diff_helman(p, kpr_client, kpu_serv) {
     const result = modExp(kpu_serv, kpr_client, p);
     return Number(result); 
 }
+<<<<<<< HEAD
+=======
+
+// Conectando ao servidor
+const socket = io('http://10.0.2.5:8001');
+
+const Kpr_client = 31;
+var Kpu_client = null;
+var Secret_Key = null;
+// Solicita a chave pública e parâmetros
+socket.emit('exchange_kpu'); 
+
+socket.on('server_kpu', (data) => {
+    console.log('Parâmetros recebidos no namespace:', data);
+
+    // Funções de cálculo
+    Kpu_client = calc_kpu_diff_helman(data.p, data.g, Kpr_client);
+    Secret_Key = String(calc_secret_diff_helman(p=data.p, kpr_client=Kpr_client, kpu_serv=data.kpu_serv));
+    Secret_Key = CryptoJS.SHA256(Secret_Key);
+    
+    // Logs para debug
+    console.log('Kpu_client:', Kpu_client);
+    console.log('Secret_Key:', Secret_Key);
+
+    // Envia o Kpu do cliente para o servidor
+    socket.emit('kpu_client', { client_kpu: Kpu_client });
+});
+>>>>>>> 8f909565611d1d624e537cc3f707a1eaa3f686ab
