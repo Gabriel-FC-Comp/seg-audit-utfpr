@@ -1,7 +1,6 @@
 # Importando bibliotecas necessárias
 from flask import Flask, render_template,send_file,request, jsonify  # Para criar o aplicativo Flask e renderizar modelos HTML
 from flask_socketio import SocketIO, emit  # Para suporte a WebSocket
-from flask_cors import CORS # Para configurar o WebSocket
 from Crypto.Cipher import AES
 import os
 import hashlib
@@ -93,8 +92,7 @@ def decrypt_file(encrypted_data,key):
 
 # Inicializando o Flask com WebSocket
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para a aplicação Flask
-socketio = SocketIO(app,cors_allowed_origins=["*"])
+socketio = SocketIO(app)
 
 # Definindo a rota principal
 @app.route('/')

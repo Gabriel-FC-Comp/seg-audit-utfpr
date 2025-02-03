@@ -8,7 +8,7 @@ socket.emit('exchange_kpu');
 
 socket.on('server_kpu', (data) => {
     console.log('Parâmetros recebidos no namespace:', data);
-
+    console.log(Kpr_client);
     // Funções de cálculo
     Kpu_client = calc_kpu_diff_helman(data.p, data.g, Kpr_client);
     Secret_Key = String(calc_secret_diff_helman(p = data.p, kpr_client = Kpr_client, kpu_serv = data.kpu_serv));
