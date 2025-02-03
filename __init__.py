@@ -2,11 +2,9 @@
 from flask import Flask, render_template,send_file,request, jsonify  # Para criar o aplicativo Flask e renderizar modelos HTML
 from flask_socketio import SocketIO, emit  # Para suporte a WebSocket
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
 import os
 import hashlib
 import base64
-import json
 
 def calc_kpu_diff_helman(p: int, g: int, Kpr: int) -> int:
     """
@@ -168,7 +166,7 @@ def upload_file_and_calculate_hash():
     # Recebe o arquivo criptografado
     encrypted_file = request.files["e_file"].read()
 
-    with open(f"{file.filename}","wb") as received_file:
+    with open(f".\\uploads\\{file.filename}","wb") as received_file:
         print("Creating File: ", f"|{file.filename}|")
         received_file.write(decrypt_file(encrypted_file,Diffie_Hellman_Secret))
 

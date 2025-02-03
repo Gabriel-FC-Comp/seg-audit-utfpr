@@ -125,6 +125,6 @@ form.addEventListener("submit", function (event) {
     if (file) {
         sendCryptedFile(file);
     } else {
-        console.log("Nenhum arquivo selecionado.");
+        alert("Nenhum arquivo selecionado.");
     }
 });
