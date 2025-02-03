@@ -9,7 +9,7 @@
     <script src={{ url_for('static', filename='socket.io/client-dist/socket.io.js') }}></script>
     <script src={{ url_for('static', filename='diffie_hellman.js') }}></script>
     <script src={{ url_for('static', filename='crypto-js/crypto-js.js') }}></script>
-    
+    <script src={{ url_for('static', filename='cipher_data.js') }}></script>
 </head>
 <body>
     <div class="container">
@@ -22,17 +22,6 @@
             <button type="submit">Enviar</button>
         </form>
         <p>Arquivos enviados serão processados no servidor.</p>
-        
-        <script>
-            document.getElementById('file').addEventListener('change', function(event) {
-                const file = event.target.files[0]; // Obtém o arquivo selecionado
-                if (file) {
-                    document.getElementById('fileName').textContent = `Arquivo selecionado: ${file.name}`;
-                } else {
-                    document.getElementById('fileName').textContent = '';
-                }
-            });
-        </script>
         
         <!--<form id="downloadForm" onsubmit="startDownload(event)">
             <label for="filename">Nome do Arquivo:</label>
@@ -54,6 +43,6 @@
             }
         }
     </script>-->
-    <script type='module' src={{ url_for('static', filename='cipher_data.js') }}></script>
+    <script type='module' src={{ url_for('static', filename='upload_file_control.js') }}></script>
 </body>
 </html>

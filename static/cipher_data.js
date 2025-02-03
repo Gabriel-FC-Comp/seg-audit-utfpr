@@ -1,7 +1,4 @@
-// Acessando o formulário e o input de arquivo
-const form = document.getElementById("uploadForm");
-const fileInput = document.getElementById("file");
-
+// Função para calcular o Hash SHA512 de um arquivo
 function calcFileHash(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -11,7 +8,6 @@ function calcFileHash(file) {
                 const fileBuffer = e.target.result;
                 const wordArray = CryptoJS.lib.WordArray.create(fileBuffer);
                 const hash = CryptoJS.SHA512(wordArray).toString(CryptoJS.enc.Hex);
-                // console.log("SHA512: ", hash);
                 resolve(hash);
             } catch (error) {
                 reject(error);
@@ -27,6 +23,7 @@ function calcFileHash(file) {
     });
 }
 
+// Função para encriptar uma string usando AES CBC
 function encryptText(text, key) {
     const iv = CryptoJS.lib.WordArray.random(16); // IV aleatório de 16 bytes
 
@@ -41,6 +38,7 @@ function encryptText(text, key) {
     return result;
 }
 
+// Função para encriptar um arquivo, considerando sua forma binária, usando AES CBC
 function encryptFile(file, key) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -80,29 +78,29 @@ function encryptFile(file, key) {
     });
 }
 
+// Função para encriptar e enviar um arquivo e seu hash par o servidor
 async function sendCryptedFile(file) {
     try {
-        const file_hash = await calcFileHash(file); // Espera o hash ser calculado
+        // Espera o hash ser calculado
+        const file_hash = await calcFileHash(file); 
 
-        const encryptedFile = await encryptFile(file, Secret_Key); // Espera criptografar o arquivo
-
-        console.log("Encriptando File_Hash: ", file_hash);
+        // Espera criptografar o arquivo
+        const encryptedFile = await encryptFile(file, Secret_Key); 
         const encrypted_hash = encryptText(file_hash, Secret_Key);
-        console.log("File: ", encryptedFile);
 
-        // Caso queira enviar o arquivo via AJAX, use FormData
+        // Formatando os dados para envio AJAX
         const formData = new FormData();
         formData.append("file", file);
         formData.append("hash", file_hash);
         formData.append("e_hash", encrypted_hash);
         formData.append("e_file", encryptedFile);
     
-        // Agora você pode enviar o arquivo para o Flask via fetch (ou Ajax)
+        // Enviando o arquivo e hash para o servidor Flask
         fetch('/upload', {
             method: 'POST',
             body: formData,
         })
-            .then(response => response.json())  // Supondo que o servidor retorne JSON
+            .then(response => response.json())
             .then(data => {
                 console.log('Arquivo enviado com sucesso!', data);
             })
@@ -111,20 +109,6 @@ async function sendCryptedFile(file) {
             });
     } catch (error) {
         console.error("Erro ao calcular o hash: ", error);
-        throw error; // Propaga o erro para quem chamou a função
+        throw error;
     }
 }
-
-// Evento para capturar o arquivo antes de enviar
-form.addEventListener("submit", function (event) {
-    event.preventDefault(); // Previne o envio do formulário para poder processá-lo via JavaScript
-
-    const file = fileInput.files[0];  // Captura o arquivo selecionado
-
-    // Verifique se um arquivo foi selecionado
-    if (file) {
-        sendCryptedFile(file);
-    } else {
-        alert("Nenhum arquivo selecionado.");
-    }
-});
