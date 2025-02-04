@@ -14,7 +14,7 @@ O servidor permite que o cliente envie um arquivo para o servidor de forma cript
     - `hash`: O hash do arquivo original.
     - `e_file`: O arquivo criptografado com AES CBC.
     - `e_hash`: O hash criptografado com AES CBC.
-5. **Descriptografando o arquivo (AES CBC)**: O servidor recebe os dados, descriptografa o arquivo e o salva na pasta uploads/.
+5. **Descriptografando o arquivo (AES CBC)**: O servidor recebe os dados, descriptografa o arquivo e o salva na pasta `uploads/`.
 
 Além disso, com um capturador de pacotes (por exemplo, Wireshark), é possível verificar o fluxo dos dados e como a criptografia protege as informações durante a transmissão.
 
